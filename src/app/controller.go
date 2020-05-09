@@ -32,9 +32,28 @@ func registerRoutes() *gin.Engine {
 		}
 
 		c.HTML(http.StatusOK, "vacation-overview.html",
-			map[string]interface{}{
+			gin.H{
 				"TimesOff": timesOff,
 			})
+	})
+
+	r.POST("/employees/:id/vacation/new", func(c *gin.Context) {
+		var timeOff TimeOff
+		err := c.BindJSON(&timeOff)
+
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+		id := c.Param("id")
+		timesOff, ok := TimesOff[id]
+
+		if !ok {
+			TimesOff[id] = []TimeOff{}
+		}
+		TimesOff[id] = append(timesOff, timeOff)
+		// sending response
+		c.JSON(http.StatusCreated, &timeOff)
 	})
 
 	admin := r.Group("/admin", gin.BasicAuth(gin.Accounts{
@@ -43,7 +62,7 @@ func registerRoutes() *gin.Engine {
 	}))
 
 	admin.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "admin-overview.html", map[string]interface{}{
+		c.HTML(http.StatusOK, "admin-overview.html", gin.H{
 			"Employees": employees,
 		})
 	})
@@ -62,7 +81,7 @@ func registerRoutes() *gin.Engine {
 		}
 
 		c.HTML(http.StatusOK, "admin-employee-edit.html",
-			map[string]interface{}{
+			gin.H{
 				"Employee": employee,
 			})
 	})
