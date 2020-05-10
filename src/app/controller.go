@@ -9,7 +9,7 @@ import (
 
 func registerRoutes() *gin.Engine {
 	r := gin.Default()
-	r.Use(loginMiddleware)
+	r.Use(loginMiddleware) // wrapp up with the middleware
 
 	r.LoadHTMLGlob("templates/**/*.html")
 	r.Any("/", func(c *gin.Context) {
